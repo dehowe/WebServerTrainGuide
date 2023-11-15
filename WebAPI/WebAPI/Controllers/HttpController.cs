@@ -4,13 +4,14 @@ using Newtonsoft.Json;
 using WebAPI.Common;
 
 
-
 namespace WebAPI.Controllers
 {
     [Route("web")]
     [ApiController]
     public class HttpController : Controller
     {
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+
         [HttpGet]
         public string Request_1(string RequestID)
         {
@@ -25,7 +26,9 @@ namespace WebAPI.Controllers
         [HttpPost("721")] 
         public string Request_721([FromBody] Request721 request721)
         {
+            Log.Info("receive request721,plan length:{0}", request721.ShiftList.Count());
             GV.ShiftList = request721.ShiftList;
+            Common.Common.FillTestTrain();
             Response721 response721 = new Response721();
             response721.ExecutionStatus = 1;
             response721.Result = "null";

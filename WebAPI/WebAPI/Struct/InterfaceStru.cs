@@ -16,7 +16,7 @@
     }
 
 
-    public struct Request7255
+    public class Request7255
     {
         public string RequestTime { get; set; }                      // 请求时间
         public List<CarStatus> CarStatusList { get; set; }           // 车辆相关状态集合
@@ -26,7 +26,7 @@
     }
 
     //接口7.2.5 请求结构体定义
-    public struct Request725
+    public class Request725
     {
         public string RequestTime { get; set; }                      // 请求时间
         public List<CarStatus> CarStatusList { get; set; }           // 车辆相关状态集合
@@ -60,7 +60,7 @@
     }
 
     //接口7.2.5 内部嵌套结构体定义
-    public struct CarStatus                         // 车辆相关状态集合结构体
+    public class CarStatus                         // 车辆相关状态集合结构体
     {
         public string CarCode { get; set; }                      // 车辆编号
         public string ShiftCode { get; set; }                    // 班次号
@@ -82,7 +82,7 @@
         public int IsOperatingLine { get; set; }                 // 车辆是否在正线	Int	1：在场段；2：在正线（车辆在正线期间，进行行车指导，在场段不做处理）
     }
 
-    public struct StationStatus                     // 站台占用状态集合结构体
+    public class StationStatus                     // 站台占用状态集合结构体
     {
         public string PlatformCode { get; set; }                 // 站台编号
         public int StationOccupyStatus { get; set; }             // 站台占用状态	Int	1：出清；2：占用
@@ -90,7 +90,7 @@
     }
 
 
-    public struct SectionStatus                     // 区段占用状态集合结构体
+    public class SectionStatus                     // 区段占用状态集合结构体
     {
         public string SectionCode { get; set; }                  // 区段编号
         public int SectionOccupyStatus { get; set; }             // 区段占用状态  1：出清；2：占用

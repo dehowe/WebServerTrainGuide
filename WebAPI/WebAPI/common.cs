@@ -1,6 +1,8 @@
 ﻿using WebAPI.Struct;
 using WebAPI.SpeedPlan;
 
+
+
 namespace WebAPI.Common
 {
 
@@ -144,16 +146,18 @@ namespace WebAPI.Common
 
     }
 
+
+
+
+
     public class Common
     {
-
-
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
 
         public static void ProgramInit()  // 程序初始化
         {
             // 基础数据初始化
-            DataInit();  
-
+            DataInit();
         }
 
 
@@ -214,17 +218,28 @@ namespace WebAPI.Common
                     limitConfigTemp.LimitValue = int.Parse(ConfigData.limitData[i, 4]);
                     GV.limitConfig.Add(limitConfigTemp);
                 }
+                
             }
             catch(Exception e)
             {
                 result = 0; // 异常
-                Console.WriteLine("ERROR_1 Base data init error");
+                Log.Error("101 Base data init error");
                 Console.WriteLine(e.Message);
             }
+            Log.Info("101 data init sucess");
             return result;
         }
 
 
+        public static string GetTimeStr(long TimeStamp)
+        {
+            DateTime dateTime = DateTimeOffset.FromUnixTimeMilliseconds(TimeStamp).UtcDateTime;
+
+            string formattedString = dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+
+            return formattedString;
+
+        }
 
         public static long GetTimeStamp(string TimeStr)
         {
@@ -255,6 +270,30 @@ namespace WebAPI.Common
                 }
             }
             return result;
+        }
+
+
+        // 根据起点，位移和方向计算终点
+        public static int GetNewLoc(int LocBegin, int Dis, int Dir)
+        {
+            int DisResult;
+            if (Dir == 2) // 下行 顺时针，公里标递增
+            {
+                DisResult = LocBegin + Dis;
+                while (DisResult > 4225)
+                {
+                    DisResult = DisResult - 4225;
+                }
+            }
+            else
+            {
+                DisResult = LocBegin - Dis;
+                while (DisResult < 0)
+                {
+                    DisResult = 4225 + DisResult;
+                }
+            }
+            return DisResult;
         }
 
         // 根据起点,终点两点公里标和方向计算距离
@@ -336,10 +375,16 @@ namespace WebAPI.Common
                             OutTimeTemp.TimeStr = GV.ShiftList[i].ShiftDetailList[j].OutTime;
                             OutTimeTemp.TimeStamp = GetTimeStamp(OutTimeTemp.TimeStr);
                             int StopTimeTemp = (int)(OutTimeTemp.TimeStamp - InTimeTemp.TimeStamp) / 1000;
-                            temp.PlanformCodeList.Add(int.Parse(GV.ShiftList[i].ShiftDetailList[j].PlatformCode));
-                            temp.InTimeList.Add(InTimeTemp);
-                            temp.OutTimeList.Add(OutTimeTemp);
-                            temp.StopTimeList.Add(StopTimeTemp);
+                            // 停站时间为0的直接跳停
+                            if(StopTimeTemp>0)
+                            {
+                                temp.PlanformCodeList.Add(int.Parse(GV.ShiftList[i].ShiftDetailList[j].PlatformCode));
+                                temp.InTimeList.Add(InTimeTemp);
+                                temp.OutTimeList.Add(OutTimeTemp);
+                                temp.StopTimeList.Add(StopTimeTemp);
+                            }
+
+
                         }
                         break;
                     }
@@ -411,41 +456,47 @@ namespace WebAPI.Common
         // 从运行计划中更新当前站、下一站
         public static void GetPlanformCodeByLoc(ref TrainOperationInfo TrainOptInfo)
         {
-            // 从运行计划停车站台查询最近站台
-            List<int> PlanformDis = new List<int>();
-            for(int i=0;i< TrainOptInfo.PlanformCodeList.Count;i++)
+            // 如果运行计划有效
+            if (TrainOptInfo.PlanformCodeList.Count > 0)
             {
-                PlanformDis.Add(GetDisFromPlanform(TrainOptInfo.PlanformCodeList[i], TrainOptInfo.CurrentPosition, TrainOptInfo.Direction));
-            }
-            // 对列表中的每个元素求绝对值
-            List<int> AbsolutePlanformDis = PlanformDis.Select(Math.Abs).ToList();
-            // 找到最小值
-            int MinValue = AbsolutePlanformDis.Min();
-            // 找到最小值对应的索引
-            int MinIndex = AbsolutePlanformDis.IndexOf(MinValue);
-
-            // 1.当前列车处于站台区域附近（<10m），当前站为本站
-            if (Math.Abs(PlanformDis[MinIndex])<10)
-            {
-                TrainOptInfo.CurrentStationCode = TrainOptInfo.PlanformCodeList[MinIndex];
-                TrainOptInfo.NextStationCode = (MinIndex + 1 < TrainOptInfo.PlanformCodeList.Count) ? TrainOptInfo.PlanformCodeList[MinIndex + 1] : 65535;
-            }
-            // 2. 当前列车处于区间，当前站为上一站
-            else
-            {
-                if(PlanformDis[MinIndex]>0)
+                // 从运行计划停车站台查询最近站台
+                List<int> PlanformDis = new List<int>();
+                for (int i = 0; i < TrainOptInfo.PlanformCodeList.Count; i++)
                 {
-                    TrainOptInfo.CurrentStationCode = (MinIndex > 0) ? TrainOptInfo.PlanformCodeList[MinIndex - 1] : 65535;
-                    TrainOptInfo.NextStationCode = TrainOptInfo.PlanformCodeList[MinIndex];
-
+                    PlanformDis.Add(GetDisFromPlanform(TrainOptInfo.PlanformCodeList[i], TrainOptInfo.CurrentPosition, TrainOptInfo.Direction));
                 }
-                else
+                // 对列表中的每个元素求绝对值
+                List<int> AbsolutePlanformDis = PlanformDis.Select(Math.Abs).ToList();
+                // 找到最小值
+                int MinValue = AbsolutePlanformDis.Min();
+                // 找到最小值对应的索引
+                int MinIndex = AbsolutePlanformDis.IndexOf(MinValue);
+
+                // 1.当前列车处于站台区域附近（<10m），当前站为本站
+                if (Math.Abs(PlanformDis[MinIndex]) < 10)
                 {
                     TrainOptInfo.CurrentStationCode = TrainOptInfo.PlanformCodeList[MinIndex];
                     TrainOptInfo.NextStationCode = (MinIndex + 1 < TrainOptInfo.PlanformCodeList.Count) ? TrainOptInfo.PlanformCodeList[MinIndex + 1] : 65535;
                 }
+                // 2. 当前列车处于区间，当前站为上一站
+                else
+                {
+                    if (PlanformDis[MinIndex] > 0)
+                    {
+                        TrainOptInfo.CurrentStationCode = (MinIndex > 0) ? TrainOptInfo.PlanformCodeList[MinIndex - 1] : 65535;
+                        TrainOptInfo.NextStationCode = TrainOptInfo.PlanformCodeList[MinIndex];
 
+                    }
+                    else
+                    {
+                        TrainOptInfo.CurrentStationCode = TrainOptInfo.PlanformCodeList[MinIndex];
+                        TrainOptInfo.NextStationCode = (MinIndex + 1 < TrainOptInfo.PlanformCodeList.Count) ? TrainOptInfo.PlanformCodeList[MinIndex + 1] : 65535;
+                    }
+
+                }
+              
             }
+
         }
 
 
@@ -507,12 +558,16 @@ namespace WebAPI.Common
                     TrainOptTemp.DriveStageLastFlag = TrainOptTemp.DriveStageFlag;
                     TrainOptTemp.DriveStageFlag = (TrainOptTemp.CarSpeed == 0 && TrainOptTemp.CarSpeedLast == 0)?1:2;
 
-                    // 如果区间运行转停车阶段，且运行计划有效
-                    if (TrainOptTemp.DriveStageFlag == 1 && TrainOptTemp.DriveStageFlag == 2 && TrainOptTemp.PlanformCodeList.Count > 0)
+
+                    if(TrainOptTemp.DriveStageFlag == 1)
                     {
                         // 更新当前站和下一站
                         GetPlanformCodeByLoc(ref TrainOptTemp);
+                    }
 
+                    // 如果区间运行转停车阶段，且运行计划有效
+                    if (TrainOptTemp.DriveStageFlag == 1 && TrainOptTemp.DriveStageLastFlag == 2 && TrainOptTemp.PlanformCodeList.Count > 0)
+                    {
                         // 更新区间起点
                         TrainOptTemp.IntervalBeginLoc = TrainOptTemp.CurrentPosition;
                         // 曲线优化相关标志复位
@@ -533,12 +588,14 @@ namespace WebAPI.Common
                             if (TrainOptTemp.StopCutDowm < 1000 * 10)
                             {
                                 Console.WriteLine("ERROR_104:stop time error");
+                                Log.Error("ERROR_104:stop time error");
                             }
 
 
                         }
+                        Console.WriteLine("arrive station,plan refresh,current:{0},next:{1},stoptime:{2}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, TrainOptTemp.StopCutDowm / 1000);
+                        Log.Info("arrive station,plan refresh,current:{0},next:{1},stoptime:{2}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, TrainOptTemp.StopCutDowm / 1000);
 
-                        Console.WriteLine("INFO_:arrive station,plan refresh,current:{0},next:{1},stoptime:{2}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, TrainOptTemp.StopCutDowm/1000);
                     }
 
                     // 如果停车阶段
@@ -550,6 +607,14 @@ namespace WebAPI.Common
                             if (GV.GlobalTime.TimeStamp> TrainOptTemp.ArriveTimeStamp + TrainOptTemp.StopCutDowm)
                             {
                                 TrainOptTemp.LeaveFlag = 1; // 倒计时结束，可以发车
+                                Console.WriteLine("stop cutdown over,allow leave");
+                                Log.Info("stop cutdown over,allow leave");
+                            }
+                            else
+                            {
+
+                                Console.WriteLine("current station:{0},next station:{1},stop cutdown {2}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, (TrainOptTemp.ArriveTimeStamp + TrainOptTemp.StopCutDowm - GV.GlobalTime.TimeStamp) / 1000);
+                                Log.Info("current station:{0},next station:{1},stop cutdown {2}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, (TrainOptTemp.ArriveTimeStamp + TrainOptTemp.StopCutDowm - GV.GlobalTime.TimeStamp) / 1000);
                             }
                         }
                     }
@@ -575,6 +640,7 @@ namespace WebAPI.Common
             {
                 TrainOptInfo.IntervalLength = 0; 
                 Console.WriteLine("ERROR_102:IntervalLength cal error,result:{0}", IntervalLengthTemp);
+                Log.Error("ERROR_102:IntervalLength cal error,result:{0}", IntervalLengthTemp);
                 return 0;
             }
             TrainOptInfo.Gradient.Clear();
@@ -610,6 +676,7 @@ namespace WebAPI.Common
                 else
                 {
                     Console.WriteLine("ERROR_103:Direction error");
+                    Log.Error("ERROR_103:Direction error");
                     return 0;
                 }
 
@@ -637,6 +704,7 @@ namespace WebAPI.Common
             if (LimitChangeLoc.Count < 1)
             {
                 Console.WriteLine("ERROR_104:Limit error");
+                Log.Error("ERROR_104:Limit error");
                 return 0;
             }
 
@@ -660,6 +728,7 @@ namespace WebAPI.Common
                 if (TrainOptInfo.TargetOperationTime < 10)
                 {
                     Console.WriteLine("ERROR_104:operation time error");
+                    Log.Error("ERROR_104:operation time error");
                     return 0;
                 }
             }
@@ -684,7 +753,7 @@ namespace WebAPI.Common
                     if(result == 1)
                     {
                         TrainOptTemp.OfflineSpeedOptFlag = 1; // 正在进行曲线优化
-                        SpeedOptParameter parameters = new SpeedOptParameter{ speed = 0,targetTime = (ushort)(TrainOptTemp.TargetOperationTime + 30), intervalLength = TrainOptTemp.IntervalLength , gradient = TrainOptTemp.Gradient, limit = TrainOptTemp.Limit, CarCode = TrainOptTemp.CarCode};
+                        SpeedOptParameter parameters = new SpeedOptParameter{ speed = 0,targetTime = (ushort)(TrainOptTemp.TargetOperationTime),intervalLength = TrainOptTemp.IntervalLength , gradient = TrainOptTemp.Gradient, limit = TrainOptTemp.Limit, CarCode = TrainOptTemp.CarCode};
                         // 创建新线程，并指定要执行的方法
                         //Thread myThread = new Thread(new ParameterizedThreadStart(SpeedOptManager.SpeedOptStart));
                         //myThread.Start(parameters);
@@ -708,9 +777,9 @@ namespace WebAPI.Common
                 {
                     // 计算当前相对起点距离
                     TrainOptTemp.IntervalCurrentDis = GetDisBetweenBeginAndEnd(TrainOptTemp.IntervalBeginLoc, TrainOptTemp.CurrentPosition, TrainOptTemp.Direction);
-                    if(TrainOptTemp.IntervalCurrentDis >= 0 && TrainOptTemp.IntervalCurrentDis < TrainOptTemp.OptimalSpeed.Count)
+                    if(TrainOptTemp.IntervalCurrentDis >= 0 && TrainOptTemp.IntervalCurrentDis < TrainOptTemp.OptimalSpeed.Count-1)
                     {
-                        TrainOptTemp.SuggestCarSpeed = TrainOptTemp.OptimalSpeed[i] / 100 ; // m/s
+                        TrainOptTemp.SuggestCarSpeed = TrainOptTemp.OptimalSpeed[TrainOptTemp.IntervalCurrentDis + 1] / 100 ; // m/s
                         TrainOptTemp.MaxCarSpeed = TrainOptTemp.SuggestCarSpeed + 1.5; // m/s
                         TrainOptTemp.MinCarSpeed = TrainOptTemp.SuggestCarSpeed - 1.5; // m/s
                     }
@@ -720,6 +789,12 @@ namespace WebAPI.Common
                         TrainOptTemp.MaxCarSpeed = 0;
                         TrainOptTemp.MinCarSpeed = 0;
                     }
+                    if (TrainOptTemp.MinCarSpeed < 0)
+                    {
+                        TrainOptTemp.MinCarSpeed = 0;
+                    }
+                    Log.Info("{0}-{1},loc:{2},end_dis:{3},sug_spd:{4}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, TrainOptTemp.CurrentPosition, TrainOptTemp.OptimalSpeed.Count - TrainOptTemp.IntervalCurrentDis, TrainOptTemp.SuggestCarSpeed);
+                    Console.WriteLine("{0}-{1},loc:{2},end_dis:{3},sug_spd:{4}", TrainOptTemp.CurrentStationCode, TrainOptTemp.NextStationCode, TrainOptTemp.CurrentPosition, TrainOptTemp.OptimalSpeed.Count - TrainOptTemp.IntervalCurrentDis, TrainOptTemp.SuggestCarSpeed);
 
                 }
                 // 如果停车阶段转区间运行
@@ -805,6 +880,51 @@ namespace WebAPI.Common
             return response725;
         }
 
+
+        public static void FillTestTrain()
+        {
+            Response725 response725 = new Response725();
+            CarGuideData carGuideData = new CarGuideData();
+            response725.CarGuideDataList.Add(carGuideData);
+            Request725 request725 = new Request725();
+            List<CarStatus> CarStatusList = new List<CarStatus>();
+            string StartTime = "2023-11-11T08:00:10.000Z";
+            long StartTimeStamp = GetTimeStamp(StartTime);
+
+            List<TrainTest> TrainTestList = new List<TrainTest>();
+            TrainTest trainTestTemp = new TrainTest();
+            trainTestTemp.CarCode = 1401;
+            trainTestTemp.Dir = 1; // 上行
+            trainTestTemp.BeginLocation = 2023;  // 上行初始公里标
+            trainTestTemp.Speed = 0;        // 初始速度 cm/s
+            TrainTestList.Add(trainTestTemp);
+
+            CarStatus carStatus = new CarStatus();
+            carStatus.CarCode = trainTestTemp.CarCode.ToString();
+            carStatus.Direction = trainTestTemp.Dir;
+            carStatus.CurrentPosition = (int)trainTestTemp.BeginLocation;
+            carStatus.CarSpeed = (double)trainTestTemp.Speed / 100;
+            carStatus.IsOperatingLine = 2;
+            CarStatusList.Add(carStatus);
+            request725.CarStatusList = CarStatusList;
+
+            request725.RequestTime = GetTimeStr(StartTimeStamp); // 时间更新
+            request725.CarStatusList[0].CarSpeed = 1;
+            response725 = SetTrainOperationInfo(request725);
+
+            // 测试循环
+            for (int i = 0; i < 10000; i++)
+            {
+                request725.RequestTime = GetTimeStr(StartTimeStamp + i * 200); // 时间更新
+                request725.CarStatusList[0].CarSpeed = response725.CarGuideDataList[0].SuggestCarSpeed;
+                TrainTestList[0].RunDis += request725.CarStatusList[0].CarSpeed * 0.2;
+                request725.CarStatusList[0].CurrentPosition = GetNewLoc(TrainTestList[0].BeginLocation, (int)TrainTestList[0].RunDis, TrainTestList[0].Dir);
+                response725 = SetTrainOperationInfo(request725);
+                Thread.Sleep(100); //200ms
+            }
+
+
+        }
 
 
     }

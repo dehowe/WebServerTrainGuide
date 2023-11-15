@@ -1,4 +1,6 @@
 using WebAPI.Common;
+using NLog;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +10,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddLogging();
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+builder.Host.UseNLog();
 // 添加自定义初始化服务
 //builder.Services.AddSingleton<IMyCustomService, MyCustomService>();
+
+
 
 // 程序初始化
 Common.ProgramInit();
@@ -31,4 +38,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// test
+
+
 

@@ -64,7 +64,14 @@
         public long TimeStamp;
     }
 
-
+    public class TrainTest         // 测试列车结构体
+    {
+        public int CarCode;
+        public int BeginLocation;
+        public double RunDis;
+        public int Speed;  // cm/s
+        public int Dir;
+    }
 
 
     public struct StationConfig             // 站台配置信息

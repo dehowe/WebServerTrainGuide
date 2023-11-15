@@ -4,6 +4,8 @@ namespace WebAPI.SpeedPlan
 {
     public class SpeedOpt
     {
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+
         // 外部变量
         private int debugFlag = 1;                                      // 调试标识，0：无 1：打印过程数据
         private UInt16 speed = 0;                                       // 初始速度
@@ -412,9 +414,11 @@ namespace WebAPI.SpeedPlan
             this.levelFlag = levelFlag;
             if (debugFlag == 1)
             {
+                Log.Info("计划运行时分:{0}s,优化运行时分:{1}s", this.targetTime, timeSum);
                 Console.WriteLine("计划运行时分:{0}s,优化运行时分:{1}s", this.targetTime, timeSum);
                 for (int i = 0; i < this.optimalSpeed.Count; i++)
                 {
+                    Log.Info("位置:{0},静态限速:{1}, 防护速度:{2},优化速度:{3}", this.discreteSize * i, this.speedLimitMMax[i], this.speedLimitMax[i], this.optimalSpeed[i]);
                     Console.WriteLine("位置:{0},静态限速:{1}, 防护速度:{2},优化速度:{3}", this.discreteSize * i, this.speedLimitMMax[i], this.speedLimitMax[i], this.optimalSpeed[i]);
                 }
             }

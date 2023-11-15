@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+FNIGFReNNcI7LHRzeEZlL0WEGNQvs4/QoZLR30qhJrhxxGBh4JFzTgDJgHtMR2xYLN/xOFKdOkvdYIvtGKCKA==",
+  "dgSpecHash": "ADHAK96vXPN4opmfRcBsPxI1vNIdAmyjqHrL2J+xf2Iy2CJ2ByTrIZe+0TVlXaME5ti4tOG/H0a/gKZiHk7Fvg==",
   "success": true,
   "projectFilePath": "C:\\Users\\kong\\source\\repos\\WebAPI\\WebAPI\\WebAPI.csproj",
   "expectedPackageFiles": [
@@ -8,13 +8,25 @@
     "C:\\Users\\kong\\.nuget\\packages\\microsoft.aspnetcore.mvc.newtonsoftjson\\3.1.23\\microsoft.aspnetcore.mvc.newtonsoftjson.3.1.23.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\6.0.0\\microsoft.extensions.configuration.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\6.0.0\\microsoft.extensions.dependencyinjection.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.logging\\6.0.0\\microsoft.extensions.logging.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.0\\microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\nlog\\5.2.5\\nlog.5.2.5.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\nlog.extensions.logging\\5.3.5\\nlog.extensions.logging.5.3.5.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\nlog.web.aspnetcore\\5.3.5\\nlog.web.aspnetcore.5.3.5.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
     "C:\\Users\\kong\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.2.3\\swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
-    "C:\\Users\\kong\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.2.3\\swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+    "C:\\Users\\kong\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.2.3\\swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.0\\system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
+    "C:\\Users\\kong\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }
