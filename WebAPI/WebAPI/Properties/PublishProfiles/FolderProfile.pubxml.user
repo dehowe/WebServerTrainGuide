@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\kong\source\repos\WebAPI\WebAPI\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2023-11-18T15:03:47.1479854Z;True|2023-11-18T22:20:20.4013886+08:00;True|2023-11-18T20:43:59.3691674+08:00;True|2023-11-18T20:42:52.2837136+08:00;True|2023-11-18T10:42:33.7344342+08:00;True|2023-11-18T10:33:00.2794643+08:00;True|2023-11-18T10:32:13.5092627+08:00;True|2023-11-18T10:25:12.6016595+08:00;</History>
+  </PropertyGroup>
+</Project>
